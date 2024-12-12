@@ -94,8 +94,10 @@ if [ "$RUNNER_TOKEN" == "null" ] || [ -z "$RUNNER_TOKEN" ]; then
     exit 1
 fi
 
+RUNNER_NUMBER=$((RANDOM % 10 + 1))
+
 echo "=== Configuring and running the runner ==="
-./config.sh --url https://github.com/sp1d5r/PythonDataBackend --token "$RUNNER_TOKEN" --name "fargate-runner-${RANDOM}" --ephemeral --unattended
+./config.sh --url https://github.com/sp1d5r/PythonDataBackend --token "$RUNNER_TOKEN" --name "fargate-runner-${RUNNER_NUMBER}" --ephemeral --unattended
 
 echo "=== Starting runner with timeout ==="
 timeout 300 ./run.sh
