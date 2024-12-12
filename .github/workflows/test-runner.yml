@@ -3,12 +3,11 @@ name: Test Self-hosted Runner
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   spin-up-runner:
-    runs-on: ubuntu-latest  # This job runs on GitHub's runners
+    runs-on: ubuntu-latest
     
     env:
       AWS_REGION: us-east-1
@@ -27,16 +26,17 @@ jobs:
 
       - name: Spin up ECS Runner
         run: |
+          NETWORK_CONFIG="{\"awsvpcConfiguration\":{\"subnets\":[${{ env.SUBNETS }}],\"securityGroups\":[${{ env.SECURITY_GROUPS }}],\"assignPublicIp\":\"DISABLED\"}}"
           aws ecs run-task \
-            --cluster migration-test-cluster \
-            --task-definition migration-test-task-family:8 \
+            --cluster ${{ env.CLUSTER_NAME }} \
+            --task-definition ${{ env.TASK_DEFINITION }} \
             --launch-type FARGATE \
-            --network-configuration "{\"awsvpcConfiguration\": {\"subnets\": [${{ env.SUBNETS }}], \"securityGroups\": [${{ env.SECURITY_GROUPS }}], \"assignPublicIp\": \"DISABLED\"}}"
+            --network-configuration "$NETWORK_CONFIG"
 
       - name: Wait for runner to be available
         run: |
           echo "Waiting for runner to register..."
-          sleep 30  # Adjust this time based on how long your runner typically takes to register
+          sleep 30
 
   test-on-runner:
     needs: spin-up-runner
