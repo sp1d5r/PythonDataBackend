@@ -1,0 +1,52 @@
+name: Test Self-hosted Runner
+
+on:
+  workflow_dispatch:
+
+jobs:
+  spin-up-runner:
+    runs-on: ubuntu-latest  # This job runs on GitHub's runners
+    
+    env:
+      AWS_REGION: us-east-1
+      CLUSTER_NAME: ${{ secrets.ECS_CLUSTER_NAME }}
+      TASK_DEFINITION: ${{ secrets.ECS_TASK_DEFINITION }}
+      SUBNETS: ${{ secrets.VPC_SUBNETS }}
+      SECURITY_GROUPS: ${{ secrets.SECURITY_GROUPS }}
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Spin up ECS Runner
+        run: |
+          aws ecs run-task \
+            --cluster migration-test-cluster \
+            --task-definition migration-test-task-family:8 \
+            --launch-type FARGATE \
+            --network-configuration "{\"awsvpcConfiguration\": {\"subnets\": [${{ env.SUBNETS }}], \"securityGroups\": [${{ env.SECURITY_GROUPS }}], \"assignPublicIp\": \"DISABLED\"}}"
+
+      - name: Wait for runner to be available
+        run: |
+          echo "Waiting for runner to register..."
+          sleep 30  # Adjust this time based on how long your runner typically takes to register
+
+  test-on-runner:
+    needs: spin-up-runner
+    runs-on: self-hosted
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Test Runner
+        run: |
+          echo "Hello from self-hosted runner!"
+          echo "Running in AWS ECS Fargate"
+          echo "Current directory: $(pwd)"
+          echo "Runner environment:"
+          env | grep -v -i "key\|token\|secret"
