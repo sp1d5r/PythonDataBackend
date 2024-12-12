@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     
     env:
-      AWS_REGION: us-east-1
+      AWS_REGION: eu-west-1
       SUBNETS: ${{ secrets.VPC_SUBNETS }}
       SECURITY_GROUPS: ${{ secrets.SECURITY_GROUPS }}
 
