@@ -11,8 +11,6 @@ jobs:
     
     env:
       AWS_REGION: us-east-1
-      CLUSTER_NAME: ${{ secrets.ECS_CLUSTER_NAME }}
-      TASK_DEFINITION: ${{ secrets.ECS_TASK_DEFINITION }}
       SUBNETS: ${{ secrets.VPC_SUBNETS }}
       SECURITY_GROUPS: ${{ secrets.SECURITY_GROUPS }}
 
