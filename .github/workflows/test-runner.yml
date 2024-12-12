@@ -28,8 +28,8 @@ jobs:
         run: |
           NETWORK_CONFIG="{\"awsvpcConfiguration\":{\"subnets\":[${{ env.SUBNETS }}],\"securityGroups\":[${{ env.SECURITY_GROUPS }}],\"assignPublicIp\":\"DISABLED\"}}"
           aws ecs run-task \
-            --cluster ${{ env.CLUSTER_NAME }} \
-            --task-definition ${{ env.TASK_DEFINITION }} \
+            --cluster migration-test-cluster \
+            --task-definition migration-test-task-family:8 \
             --launch-type FARGATE \
             --network-configuration "$NETWORK_CONFIG"
 
