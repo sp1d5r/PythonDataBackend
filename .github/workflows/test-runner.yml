@@ -2,6 +2,9 @@ name: Test Self-hosted Runner
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
   spin-up-runner:
